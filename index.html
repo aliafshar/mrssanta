@@ -1,0 +1,152 @@
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <title>Mrs Santa</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      #statusbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        color: #fff;
+      }
+
+      #statusbar > div {
+        display: inline;
+          background: red;
+      }
+
+      .status {
+        font-family: 'Press Start 2P', sans-serif;
+        position: fixed;
+        color: #fff;
+        margin: 20px;
+        text-shadow: 1px 1px black;
+          font-size: 50px;
+      }
+
+      #status_time {
+        bottom: 0;
+        left: 0;
+      }
+      #status_level {
+        top: 0;
+        left: 0;
+      }
+      #status_speed {
+        font-size: 30px;
+        bottom: 0;
+        right: 0;
+        width: 200px;
+        height:160px;
+      }
+      #status_points {
+        top: 0;
+        right: 0;
+      }
+
+      #status_strong {
+        font-size: 30px;
+        bottom: 0;
+        right: 200px;
+        width: 200px;
+        height: 160px;
+      }
+
+      .gauge {
+        width: 100px;
+        height: 80px;
+      }
+
+    </style>
+    <ilink href="https://fonts.googleapis.com/css?family=Press+Start+2P"
+      rel="stylesheet">
+  </head>
+  <body>
+
+    <div id="glholder">
+    </div>
+
+
+        <div id="status_level" class="status"></div>
+      
+        <div id="status_points" class="status"></div>
+
+        <div id="status_time" class="status"></div>
+
+        <div id="status_speed" class="status"></div>
+
+        <div id="status_strong" class="status"></div>
+
+    <script src="js/hammer.min.js"></script>
+    <script src="js/gauge.min.js"></script>
+    <script src="js/three.js"></script>
+    <script src="js/OBJLoader.js"></script>
+    <script src="js/MTLLoader.js"></script>
+    <script src="js/Tween.js"></script>
+    <script src="js/simplex-noise.js"></script>
+    <script src="js/screenfull.min.js"></script>
+    <script src="js/mrssanta.js"></script>
+
+
+    <script type="x-shader/x-vertex" id="step07_vs">
+			uniform float radiusX;
+			uniform float radiusZ;
+			uniform float size;
+			uniform float scale;
+			uniform float height;
+			uniform float elapsedTime;
+			uniform float speedH;
+			uniform float speedV;
+			void main() {
+				vec3 pos = position;
+				pos.x += cos((elapsedTime + position.z) * 0.25 * speedH) * radiusX;
+				pos.y = mod(pos.y - elapsedTime * speedV, height);
+				pos.z += sin((elapsedTime + position.x) * 0.25 * speedH) * radiusZ;
+				vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
+				gl_PointSize = size * ( scale / length( mvPosition.xyz ) );
+				gl_Position = projectionMatrix * mvPosition;
+			}
+		</script>
+		
+		<script type="x-shader/x-fragment" id="step09_fs">
+			uniform vec3 color;
+			uniform float opacity;
+			uniform sampler2D texture;
+			void main() {
+				vec4 texColor = texture2D( texture, gl_PointCoord );
+				gl_FragColor = texColor * vec4( color, opacity );
+			}
+		</script>
+
+    <script>
+
+var mtlLoader = new THREE.MTLLoader();
+  var snowmanModels;
+  var treeModels;
+  var game;
+  mtlLoader.load('../models/snowman_OBJ.mtl', function(mts) {
+    mts.preload();
+    var loader = new THREE.OBJLoader();
+    loader.setPath('../models/');
+    //loader.setMaterials(mts);
+    loader.load('snowman_OBJ.obj',
+    function(o) {
+      snowmanModels = o;
+      var loader = new THREE.OBJLoader();
+      loader.setPath('../models/');
+      loader.load('trees.obj', function(o) {
+        treeModels = o;
+        game = new Game(o);
+        game.run();
+      });
+    });
+
+  });
+    </script>
+  </body>
+
+</html>
